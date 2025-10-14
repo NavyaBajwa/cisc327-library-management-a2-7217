@@ -114,6 +114,9 @@ def return_book_by_patron(patron_id: str, book_id: int) -> Tuple[bool, str]:
     if not patron_id or not patron_id.isdigit() or len(patron_id) != 6:
         return False, "Invalid patron ID. Must be exactly 6 digits."
     
+    if not book_id:
+         return False, "Invalid book id."
+
     book = get_book_by_id(book_id)
     if not book:
         return False, "Book not found."
