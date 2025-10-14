@@ -1,10 +1,13 @@
 import pytest
 from database import get_all_books
 
-from database import reset_database, add_sample_data
+from database import init_database, reset_database, add_sample_data
 
-reset_database()
-add_sample_data()
+@pytest.fixture(scope="session", autouse=True)
+def setup_database():
+    init_database()
+    reset_database()
+    add_sample_data()
 
 def test_catalog_structure():
     catalog = get_all_books()

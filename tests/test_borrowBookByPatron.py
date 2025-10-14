@@ -3,10 +3,13 @@ from library_service import (
     borrow_book_by_patron
 )
 
-from database import reset_database, add_sample_data
+from database import init_database, reset_database, add_sample_data
 
-reset_database()
-add_sample_data()
+@pytest.fixture(scope="session", autouse=True)
+def setup_database():
+    init_database()
+    reset_database()
+    add_sample_data()
 
 # this test doesn't work right now because the book id keeps changing, but otherwise its fine
 '''
