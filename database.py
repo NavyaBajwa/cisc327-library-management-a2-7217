@@ -58,7 +58,7 @@ def add_sample_data():
         sample_books = [
             ('The Great Gatsby', 'F. Scott Fitzgerald', '9780743273565', 3),
             ('To Kill a Mockingbird', 'Harper Lee', '9780061120084', 2),
-            ('1984', 'George Orwell', '9780451524935', 1)
+            ('1984', 'George Orwell', '9780451524935', 2)
         ]
         
         for title, author, isbn, copies in sample_books:
@@ -80,6 +80,14 @@ def add_sample_data():
         
         conn.commit()
     
+    conn.close()
+
+def reset_database():
+    """Delete all data from books and borrow_records (used for tests)."""
+    conn = get_db_connection()
+    conn.execute('DELETE FROM borrow_records')
+    conn.execute('DELETE FROM books')
+    conn.commit()
     conn.close()
 
 # Helper Functions for Database Operations
