@@ -14,7 +14,8 @@ def get_late_fee(patron_id, book_id):
     API endpoint for R4: Late Fee Calculation
     """
     result = calculate_late_fee_for_book(patron_id, book_id)
-    return jsonify(result), 501 if 'not implemented' in result.get('status', '') else 200
+    status_code = 404 if 'not currently borrowed' in result.get('status', '') else 200
+    return jsonify(result), status_code
 
 @api_bp.route('/search')
 def search_books_api():

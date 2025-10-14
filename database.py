@@ -105,6 +105,20 @@ def get_book_by_isbn(isbn: str) -> Optional[Dict]:
     conn.close()
     return dict(book) if book else None
 
+# These are two new helper functions I made for the search function
+def get_book_by_title(title: str) -> List[Dict]:
+    conn = get_db_connection()
+    books = conn.execute('SELECT * FROM books WHERE LOWER(title) LIKE ? ORDER BY title', (f"%{title.lower()}%",)).fetchall()
+    conn.close()
+    return [dict(book) for book in books] if books else None
+
+def get_book_by_author(author: str) -> List[Dict]:
+    conn = get_db_connection()
+    books = conn.execute('SELECT * FROM books WHERE LOWER(author) LIKE ? ORDER BY author', (f"%{author.lower()}%",)).fetchall()
+    conn.close()
+    return [dict(book) for book in books] if books else None
+
+
 def get_patron_borrowed_books(patron_id: str) -> List[Dict]:
     """Get currently borrowed books for a patron."""
     conn = get_db_connection()
@@ -129,6 +143,36 @@ def get_patron_borrowed_books(patron_id: str) -> List[Dict]:
         })
     
     return borrowed_books
+
+# This helper function will be to store the full borrowing history of a patron
+# The only difference is that it doesn't only store books with a NULL as the return date
+def get_patron_borrowing_history(patron_id: str) -> List[Dict]:
+
+    conn = get_db_connection()
+    records = conn.execute('''
+        SELECT br.*, b.title, b.author 
+        FROM borrow_records br 
+        JOIN books b ON br.book_id = b.id 
+        WHERE br.patron_id = ?
+        ORDER BY br.borrow_date
+    ''', (patron_id,)).fetchall()
+    conn.close()
+    
+    all_borrowed_books = []
+    for record in records:
+        all_borrowed_books.append({
+            'book_id': record['book_id'],
+            'title': record['title'],
+            'author': record['author'],
+            'borrow_date': datetime.fromisoformat(record['borrow_date']),
+            'due_date': datetime.fromisoformat(record['due_date']),
+            "return_date": datetime.fromisoformat(record["return_date"]) if record["return_date"] else None,
+            "is_overdue": (
+                record["return_date"] is None
+                and datetime.now() > datetime.fromisoformat(record["due_date"]))
+        })
+    
+    return all_borrowed_books
 
 def get_patron_borrow_count(patron_id: str) -> int:
     """Get the number of books currently borrowed by a patron."""

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>📊 Status Report</h2>
+<p>Get a patron status report.</p>
+
+<form method="GET" action="{{ url_for('report.patron_report') }}">
+    <div class="form-group">
+        <label for="patron_id">Patron ID *</label>
+        <input type="text" id="patron_id" name="patron_id" pattern="[0-9]{6}" maxlength="6" required
+               value="{{ request.form.patron_id if request.form.patron_id else '' }}">
+        <small style="color: #666;">6-digit library card number</small>
+    </div>
+    
+    <div class="form-group">
+        <button type="submit" class="btn">📊 Get Report</button>
+        <a href="{{ url_for('catalog.catalog') }}" class="btn" style="margin-left: 10px;">Cancel</a>
+    </div>
+</form>
+
+{% if report %}
+    <hr style="margin: 30px 0;">
+    
+    <h3>Patron Status Report for Patron: {{ patron_id }} </h3>
+    <p>Total Fees Owed: ${{ "%.2f"|format(report.totalLateFees) }}</p>
+    <p>Number of Books Currently Borrowed: {{ report.currentBorrowCount }}</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Borrow Date</th>
+                <th>Due Date</th>
+                <th>Return Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in report["borrowingHistory"] %}
+            <tr>
+                <td>{{ book.book_id }}</td>
+                <td>{{ book.title }}</td>
+                <td>{{ book.author }}</td>
+                <td>{{ book.borrow_date.strftime('%Y-%m-%d') }}</td>
+                <td>{{ book.due_date.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    {% if book.return_date %}
+                        {{ book.return_date.strftime('%Y-%m-%d') }}
+                    {% else %}
+                        Not returned yet
+                    {% endif %}
+                </td>
+                <td>
+                    {% if book.return_date %}
+                        Returned
+                    {% elif book.is_overdue %}
+                        Borrowed (overdue)
+                    {% else %}
+                        Borrowed
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>    
+    </table>
+
+{% endif %}
+
+{% endblock %}
