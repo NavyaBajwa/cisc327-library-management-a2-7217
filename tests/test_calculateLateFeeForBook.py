@@ -3,7 +3,7 @@ import pytest
 #    calculate_late_fee_for_book
 #)
 
-import library_service as ls
+import services.library_service as ls
 import datetime
 
 def test_book_not_overdue(monkeypatch):

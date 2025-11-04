@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, flash
-from library_service import get_patron_status_report
+from services.library_service import get_patron_status_report
 
 report_bp = Blueprint('report', __name__)
 
