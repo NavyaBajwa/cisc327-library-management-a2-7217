@@ -85,7 +85,7 @@ def test_borrow_book_exceed_limit():
     bookBorrow = get_book_by_isbn("5672451342345")
     booksID = bookBorrow["id"]
 
-    success, message = borrow_book_by_patron("999999", booksID)
+    success, message = borrow_book_by_patron("875247", booksID)
     assert success == False
     assert "reached the maximum borrowing limit" in message.lower()
 
