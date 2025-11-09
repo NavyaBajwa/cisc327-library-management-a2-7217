@@ -123,3 +123,12 @@ def test_add_book_valid_min_total_copies():
 
     assert success == True
     assert "successfully added" in message.lower()
+
+def test_add_book_duplicate_isbn():
+    isbnToDuplicate = "1928200519751"
+    add_book_to_catalog("ogBook", "me", isbnToDuplicate, 3)
+
+    success, message = add_book_to_catalog("duplicateBook", "Writer", isbnToDuplicate, 1)
+
+    assert success == False
+    assert "isbn already exists" in message.lower()
