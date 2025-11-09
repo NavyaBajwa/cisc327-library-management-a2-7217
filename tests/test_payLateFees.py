@@ -191,6 +191,8 @@ def test_payLateFees_feeInfoMissing(mocker):
     assert "unable to calculate late fees" in message.lower()
     assert transaction_id is None
 
+    mock_payment_gateway.process_payment.assert_not_called()
+
 def test_payLateFees_bookNotFound(mocker):
     mock_calc_fee = mocker.patch(
         "services.library_service.calculate_late_fee_for_book", 
@@ -207,3 +209,5 @@ def test_payLateFees_bookNotFound(mocker):
     assert success == False
     assert "book not found" in message.lower()
     assert transaction_id is None
+
+    mock_payment_gateway.process_payment.assert_not_called()
