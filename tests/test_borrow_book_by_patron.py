@@ -12,15 +12,18 @@ def setup_database():
     reset_database()
     add_sample_data()
 
-# this test doesn't work right now because the book id keeps changing, but otherwise its fine
-'''
+
 def test_borrow_book_valid_input():
-    """Test borrowing a book with valid input."""
-    success, message = borrow_book_by_patron("246891", 89)
+    add_book_to_catalog("boooook", "meeeeee", "7642678954271", 2)
+    
+    book = get_book_by_isbn("7642678954271")
+    bookID = book["id"]
+
+    success, message = borrow_book_by_patron("246891", bookID)
     
     assert success == True
     assert "successfully borrowed" in message.lower()
-'''
+
 def test_borrow_book_invalid_patron_id_too_short():
     """Test borrowing a book with patron id too short."""
     success, message = borrow_book_by_patron("123", 5)
