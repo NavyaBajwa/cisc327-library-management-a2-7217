@@ -1,7 +1,8 @@
 import pytest
 from services.library_service import (
-    borrow_book_by_patron
+    borrow_book_by_patron, add_book_to_catalog
 )
+from database import get_book_by_isbn
 
 from database import init_database, reset_database, add_sample_data
 
@@ -41,18 +42,50 @@ def test_borrow_book_invalid_patron_id_not_numeric():
     assert success == False
     assert "invalid patron id" in message.lower()
 
-'''
-def test_borrow_book_invalid_too_many_withdrawn():
-    """Test borrowing a book when patron has already withdrawn 5."""
-    success, message = borrow_book_by_patron("123456", 40)
-    
-    assert success == False
-    assert "maximum borrowing limit" in message.lower()
-'''
 def test_borrow_book_invalid_book_id():
     """Test borrowing a book when the book id is not valid."""
     success, message = borrow_book_by_patron("345689", 99999999999999)
     
     assert success == False
     assert "book not found" in message.lower()
+
+# new tests
+
+def test_borrow_book_not_available():
+    # add book with one copy
+    add_book_to_catalog("boook", "me", "1234567891234", 1)
+    book = get_book_by_isbn("1234567891234")
+    bookID = book["id"]
+
+    borrow_book_by_patron("123456", bookID)
+
+    # try to borrow book already borrowed
+    success, message = borrow_book_by_patron("333444", bookID)
+    assert success == False
+    assert "not available" in message.lower()
+
+def test_borrow_book_exceed_limit():
+    # create 5 books
+    for i in range(5):
+        title = f"book{i}"
+        author = f"author{i}"
+        isbn = f"{i}" * 13
+        copies = 1
+        add_book_to_catalog(title, author, isbn, copies)
+
+    # have user borrow the five books
+    for i in range(5):
+        isbn = f"{i}" * 13
+        book = get_book_by_isbn(isbn)
+        bookID = book["id"]
+        borrow_book_by_patron("999999", bookID)
+
+    # try to borrow book after reaching limit
+    add_book_to_catalog("bookToBorrow", "navya", "5672451342345", 2)
+    bookBorrow = get_book_by_isbn("5672451342345")
+    booksID = bookBorrow["id"]
+
+    success, message = borrow_book_by_patron("999999", booksID)
+    assert success == False
+    assert "reached the maximum borrowing limit" in message.lower()
 
