@@ -78,7 +78,7 @@ def test_borrow_book_exceed_limit():
         isbn = f"{i}" * 13
         book = get_book_by_isbn(isbn)
         bookID = book["id"]
-        borrow_book_by_patron("999999", bookID)
+        borrow_book_by_patron("875247", bookID)
 
     # try to borrow book after reaching limit
     add_book_to_catalog("bookToBorrow", "navya", "5672451342345", 2)
