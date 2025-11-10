@@ -84,6 +84,7 @@ def add_sample_data():
 
 def reset_database():
     """Delete all data from books and borrow_records (used for tests)."""
+    init_database()
     conn = get_db_connection()
     conn.execute('DELETE FROM borrow_records')
     conn.execute('DELETE FROM books')
