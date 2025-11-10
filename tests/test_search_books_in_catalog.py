@@ -81,3 +81,17 @@ def test_search_book_with_invalid_isbn_numeric():
     bookList = search_books_in_catalog("9999999999999", "isbn") or []
     # check that the bookList is empty bc isbn doesn't exist
     assert bookList == []
+
+## Added tests for coverage
+
+def test_search_book_with_title_max():
+    bookList = search_books_in_catalog("A"*201, "title") or []
+    assert bookList == []
+
+def test_search_book_with_author_max():
+    bookList = search_books_in_catalog("A"*101, "author") or []
+    assert bookList == []
+
+def test_search_book_with_isbn_not_length():
+    bookList = search_books_in_catalog("816254367", "author") or []
+    assert bookList == []

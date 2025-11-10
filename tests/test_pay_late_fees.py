@@ -6,7 +6,7 @@ import time
 
 
 def test_payLateFees_Successful(mocker):
-    # 
+    # test paying fees with valid input
     mock_calc_fee = mocker.patch(
         "services.library_service.calculate_late_fee_for_book", 
         return_value={'fee_amount': 1.5, 'days_overdue': 3, 'status': '3 days overdue'}
@@ -21,10 +21,9 @@ def test_payLateFees_Successful(mocker):
     fee_amount = mock_calc_fee.return_value['fee_amount']
     
     mock_payment_gateway = Mock(spec=PaymentGateway)
-    fake_patron_id = "123456"
 
-    mock_payment_gateway.process_payment.return_value = (True, f"txn_{fake_patron_id}_{int(time.time())}", f"Payment of ${fee_amount:.2f} processed successfully")
-    success, message, transaction_id = pay_late_fees(patron_id=fake_patron_id, book_id=77, payment_gateway=mock_payment_gateway)
+    mock_payment_gateway.process_payment.return_value = (True, f"txn_123456_{int(time.time())}", f"Payment of ${fee_amount:.2f} processed successfully")
+    success, message, transaction_id = pay_late_fees("123456", 77, mock_payment_gateway)
     
     assert success == True
     assert "payment of $1.50 processed successfully" in message.lower()
@@ -32,13 +31,13 @@ def test_payLateFees_Successful(mocker):
     
     mock_payment_gateway.process_payment.assert_called_once()
     mock_payment_gateway.process_payment.assert_called_with( 
-        patron_id=fake_patron_id,
+        patron_id="123456",
         amount=1.50,
         description=f"Late fees for '{bookTitle}'"
     )
 
 def test_payLateFees_InvalidPatron(mocker):
-    # 
+    # test paying fees with invalid patron id
     mock_calc_fee = mocker.patch(
         "services.library_service.calculate_late_fee_for_book", 
         return_value={'fee_amount': 1.5, 'days_overdue': 3, 'status': '3 days overdue'}
@@ -51,7 +50,7 @@ def test_payLateFees_InvalidPatron(mocker):
     
     mock_payment_gateway = Mock(spec=PaymentGateway)
 
-    success, message, transaction_id = pay_late_fees(patron_id="123456789", book_id=77, payment_gateway=mock_payment_gateway)
+    success, message, transaction_id = pay_late_fees("123456789", 77, mock_payment_gateway)
     
     assert success == False
     assert "invalid patron id" in message.lower()
@@ -60,7 +59,7 @@ def test_payLateFees_InvalidPatron(mocker):
     mock_payment_gateway.process_payment.assert_not_called()
 
 def test_payLateFees_noFeesOwed(mocker):
-    # 
+    # test paying fees when nothing is owed
     mock_calc_fee = mocker.patch(
         "services.library_service.calculate_late_fee_for_book", 
         return_value={'fee_amount': 0.00, 'days_overdue': 0, 'status': '0 days overdue'}
@@ -73,7 +72,7 @@ def test_payLateFees_noFeesOwed(mocker):
     
     mock_payment_gateway = Mock(spec=PaymentGateway)
 
-    success, message, transaction_id = pay_late_fees(patron_id="112233", book_id=88, payment_gateway=mock_payment_gateway)
+    success, message, transaction_id = pay_late_fees("112233", 88, mock_payment_gateway)
     
     assert success == False
     assert "no late fees" in message.lower()
@@ -98,7 +97,7 @@ def test_payLateFees_gatewayDenies_amountLow(mocker):
     mock_payment_gateway = Mock(spec=PaymentGateway)
 
     mock_payment_gateway.process_payment.return_value = (False, "", "Invalid amount: must be greater than 0")
-    success, message, transaction_id = pay_late_fees(patron_id="112233", book_id=88, payment_gateway=mock_payment_gateway)
+    success, message, transaction_id = pay_late_fees("112233", 88, mock_payment_gateway)
     
     assert success == False
     assert "payment failed" in message.lower()
@@ -128,7 +127,7 @@ def test_payLateFees_gatewayExceptionError(mocker):
     mock_payment_gateway = Mock(spec=PaymentGateway)
 
     mock_payment_gateway.process_payment.side_effect = Exception("network error")
-    success, message, transaction_id = pay_late_fees(patron_id="445566", book_id=99, payment_gateway=mock_payment_gateway)
+    success, message, transaction_id = pay_late_fees("445566", 99, mock_payment_gateway)
     
     assert success == False
     assert "payment processing error" in message.lower()
@@ -161,7 +160,7 @@ def test_payLateFees_gatewayDenies_amountHigh(mocker):
     mock_payment_gateway = Mock(spec=PaymentGateway)
 
     mock_payment_gateway.process_payment.return_value = (False, "", "Payment declined: amount exceeds limit")
-    success, message, transaction_id = pay_late_fees(patron_id="112233", book_id=88, payment_gateway=mock_payment_gateway)
+    success, message, transaction_id = pay_late_fees("112233", 88, mock_payment_gateway)
     
     assert success == False
     assert "payment failed" in message.lower()
