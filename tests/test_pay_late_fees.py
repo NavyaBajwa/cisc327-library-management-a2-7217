@@ -112,7 +112,7 @@ def test_payLateFees_gatewayDenies_amountLow(mocker):
     )
 
 def test_payLateFees_gatewayExceptionError(mocker):
-    # test when the gateway declines the payment --> bc/ amount is too low
+    # test when a network error occurs in the payment gateway
     mock_calc_fee = mocker.patch(
         "services.library_service.calculate_late_fee_for_book", 
         return_value={'fee_amount': 3, 'days_overdue': 6, 'status': '6 days overdue'}
