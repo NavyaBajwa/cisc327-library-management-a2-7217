@@ -88,11 +88,9 @@ def test_return_book_no_book_id():
     assert success == False
     assert "invalid book" in message.lower()
 
-'''
 def test_return_book_invalid_patron():
     """Test returning a book with non-existant patron."""
-    success, message = ls.return_book_by_patron("000000", 3)
+    success, message = return_book_by_patron("000000", 3)
     
     assert success == False
     assert "book not found" in message.lower()
-'''
