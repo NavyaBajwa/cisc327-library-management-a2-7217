@@ -8,22 +8,19 @@ import time
 #TESTS FOR PAYING LATE FEES
 def test_payLateFees_Successful(mocker):
     # test paying fees with valid input
-    mock_calc_fee = mocker.patch(
+    mocker.patch(
         "services.library_service.calculate_late_fee_for_book", 
         return_value={'fee_amount': 1.5, 'days_overdue': 3, 'status': '3 days overdue'}
     )
 
-    mock_get_book = mocker.patch(
+    mocker.patch(
         "services.library_service.get_book_by_id",
         return_value={"id":77,"title":"Test Book"}
     )
-
-    bookTitle = mock_get_book.return_value['title']
-    fee_amount = mock_calc_fee.return_value['fee_amount']
     
     mock_payment_gateway = Mock(spec=PaymentGateway)
 
-    mock_payment_gateway.process_payment.return_value = (True, f"txn_123456_{int(time.time())}", f"Payment of ${fee_amount:.2f} processed successfully")
+    mock_payment_gateway.process_payment.return_value = (True, f"txn_123456_{int(time.time())}", f"Payment of $1.50 processed successfully")
     success, message, transaction_id = pay_late_fees("123456", 77, mock_payment_gateway)
     
     assert success == True
@@ -34,7 +31,7 @@ def test_payLateFees_Successful(mocker):
     mock_payment_gateway.process_payment.assert_called_with( 
         patron_id="123456",
         amount=1.50,
-        description=f"Late fees for '{bookTitle}'"
+        description=f"Late fees for 'Test Book'"
     )
 
 def test_payLateFees_InvalidPatron(mocker):
