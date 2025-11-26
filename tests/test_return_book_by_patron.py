@@ -14,6 +14,11 @@ def setup_database():
     reset_database()
     add_sample_data()
 
+    yield
+
+    reset_database()
+    add_sample_data()
+
 '''
 def test_return_book_valid(monkeypatch):
     """Test returning a book with valid input."""
