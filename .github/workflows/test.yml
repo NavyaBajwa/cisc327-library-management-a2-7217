@@ -25,6 +25,11 @@ jobs:
     - name: Install Playwright Browsers
       run: playwright install --with-deps
 
+    - name: Start Flask app
+      run: |
+        nohup python app.py &
+        sleep 3
+
     - name: Run tests with coverage
       run: |
         pytest --cov=services.library_service --cov=services.payment_service --cov-report=xml
