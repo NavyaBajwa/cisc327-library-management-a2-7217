@@ -1,7 +1,14 @@
 import pytest
 from playwright.sync_api import Page, expect
+from database import reset_database, add_sample_data
 
 BASE_URL = "http://127.0.0.1:5000"
+
+@pytest.fixture(autouse=True)
+def reset_db():
+    reset_database()        
+    add_sample_data()       
+    yield
 
 def test_add_book_and_borrow(page: Page):
     # go to catalog
