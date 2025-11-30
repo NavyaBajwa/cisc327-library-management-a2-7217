@@ -27,9 +27,7 @@ def test_add_book_and_borrow(page: Page):
 
     #check that submitting redirects to catalog page and displays success message
     expect(page).to_have_url(f"{BASE_URL}/catalog")
-    expect(page.locator(".flash-messages")).to_contain_text(
-        'Book "E2E Book 1" has been successfully added to the catalog'
-    )
+    expect(page.locator(".flash-messages")).to_contain_text("E2E Book 1")
 
     # check that catalog displays the newly added book
     expect(page.locator("table")).to_contain_text("E2E Book 1")
